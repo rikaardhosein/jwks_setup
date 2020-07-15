@@ -9,9 +9,9 @@ const cert = fs.readFileSync('./cert/cert.pem', 'utf-8');
 const express = require('express');
 
 var payload = {
-  "issuer": "https://secure.rikaard.io/",
-  "subject": "test",
-  "audience": [
+  "iss": "https://secure.rikaard.io/",
+  "sub": "test",
+  "aud": [
     "https://rikaardhosein.auth0.com/api/v2/",
     "https://auth0.auth0.com/userinfo"
   ],
