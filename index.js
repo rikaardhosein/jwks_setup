@@ -43,12 +43,9 @@ app.get('/.well-known/jwks.json', function(req, res) {
 });
 
 app.get('/', function(req, res){
-  return res.send(token);
-});
-
-app.post('/', function(req, res) {
   const token = jwt.sign(payload, priv, {keyid:"1", algorithm: "RS256"});
   return res.send(token);
 });
+
 
 app.listen(port, host,() => console.log(`Listening at http://${host}:${port}`));
