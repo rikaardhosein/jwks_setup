@@ -9,32 +9,29 @@ const cert = fs.readFileSync('./cert/cert.pem', 'utf-8');
 const express = require('express');
 
 var payload = {
-  "issuer": "https://issuer.rikaard.io:8085/",
-  "subject": "google-oauth2|109467639016817594013",
+  "issuer": "https://secure.rikaard.io/",
+  "subject": "test",
   "audience": [
     "https://rikaardhosein.auth0.com/api/v2/",
     "https://auth0.auth0.com/userinfo"
   ],
-  "expiresIn": 694741530,
+  "expiresIn": "10y",
   "algorithm": "RS256"
 };
 
-var token = jwt.sign(payload, priv, payload);
-console.log(token);
+const pubKeyToJwk = function(pub) {
+  var jwk = rsaPemToJwk(pub, {use: "sig"}, "public");
+  var s = cert.indexOf('\n');
+  var e = cert.substr(0, cert.length-1).lastIndexOf('\n');
+  var c = cert.substring(s+1, e);
+  const regex = /\n/gi;
+  c = c.replace(regex,'');
+  jwk.x5c = [c];
+  jwk.kid = 1;
+  return jwk;
+}
 
-
-
-var legit = jwt.verify(token, pub, {algorithm: "RS256"});
-console.log(legit);
-
-
-var jwk = rsaPemToJwk(pub, {use: 'sig'}, 'public');
-var s = cert.indexOf('\n');
-var e = cert.substr(0, cert.length-1).lastIndexOf('\n');
-var c = cert.substring(s+1, e);
-const regex = /\n/gi;
-c = c.replace(regex,'');
-jwk.x5c = c;
+const jwk = pubKeyToJwk(pub);
 console.log(jwk);
 
 const app = express();
@@ -45,7 +42,13 @@ app.get('/.well-known/jwks.json', function(req, res) {
   return res.send(JSON.stringify(jwk));
 });
 
-app.get('/token', function(req, res){
+app.get('/', function(req, res){
   return res.send(token);
 });
-app.listen(port, host,() => console.log(`Example app listening at http://${host}:${port}`));
+
+app.post('/', function(req, res) {
+  const token = jwt.sign(payload, priv, {keyid:"1", algorithm: "RS256"});
+  return res.send(token);
+});
+
+app.listen(port, host,() => console.log(`Listening at http://${host}:${port}`));
