@@ -27,8 +27,8 @@ const pubKeyToJwk = function(pub) {
   const regex = /\n/gi;
   c = c.replace(regex,'');
   jwk.x5c = [c];
-  jwk.kid = 1;
-  return jwk;
+  jwk.kid l= "1";
+  return {"keys": [jwk]};
 }
 
 const jwk = pubKeyToJwk(pub);
